@@ -87,13 +87,22 @@ toggle.addEventListener('click', () => {
   status.textContent = currentView === 'globe' ? 'Earth · Mapzen / AWS Terrain Tiles · drag to explore' : 'Venezuela terrain · Mapzen / AWS Terrain Tiles · drag to explore';
 });
 
-sitePicker.addEventListener('change', () => {
+function focusSelectedSite() {
   const site = sites.find((item) => item.id === sitePicker.value);
   if (!site || !globe) return;
   globe.spin.quaternion.copy(faceQuat(site.latitude, site.longitude, new THREE.Vector3(0, 0, 1)));
   camera.position.set(0, 0, 5);
   controls.target.set(0, 0, 0);
   controls.update();
+}
+sitePicker.addEventListener('change', focusSelectedSite);
+window.addEventListener('keydown', (event) => {
+  if (currentView !== 'globe' || event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
+  if ((event.target as HTMLElement | null)?.closest('input, select, textarea, [contenteditable="true"]')) return;
+  const index = Number(event.key) - 1;
+  if (!Number.isInteger(index) || index < 0 || index >= sites.length) return;
+  sitePicker.value = sites[index].id;
+  focusSelectedSite();
 });
 
 function resize() {
