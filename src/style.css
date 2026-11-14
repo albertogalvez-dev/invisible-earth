@@ -3,3 +3,6 @@ html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
 canvas { display: block; width: 100%; height: 100%; }
 
 .terrain-status { position: absolute; left: 1rem; top: 1rem; max-width: calc(100% - 2rem); padding: .55rem .75rem; border-radius: .4rem; background: #06121cdd; color: #e6f5ff; font: 14px/1.4 system-ui, sans-serif; }
+
+.view-toggle { position: absolute; right: 1rem; top: 1rem; padding: .65rem .9rem; color: #e6f5ff; background: #12354a; border: 1px solid #83bdd1; border-radius: .4rem; font: 14px system-ui, sans-serif; cursor: pointer; }
+.view-toggle:disabled { opacity: .5; cursor: wait; }

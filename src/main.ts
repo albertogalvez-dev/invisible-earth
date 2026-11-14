@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { loadTerrain } from './terrain';
+import { createGlobe, faceQuat, GLOBE_R, type Globe } from './globe';
 import './style.css';
 
 const container = document.querySelector<HTMLElement>('#app');
@@ -30,12 +31,46 @@ const status = document.createElement('div');
 status.className = 'terrain-status';
 status.textContent = 'Loading Venezuela terrain…';
 container.appendChild(status);
+let terrainMesh: THREE.Mesh | undefined;
+let globe: Globe | undefined;
+let currentView: 'terrain' | 'globe' = 'terrain';
+const toggle = document.createElement('button');
+toggle.className = 'view-toggle';
+toggle.textContent = 'Show Earth';
+toggle.disabled = true;
+container.appendChild(toggle);
 loadTerrain().then((terrain) => {
+  terrainMesh = terrain;
+  terrain.visible = currentView === 'terrain';
   scene.add(terrain);
-  status.textContent = 'Venezuela terrain · Mapzen / AWS Terrain Tiles · drag to explore';
+  if (currentView === 'terrain') status.textContent = 'Venezuela terrain · Mapzen / AWS Terrain Tiles · drag to explore';
 }).catch((error: unknown) => {
   console.error(error);
   status.textContent = 'Terrain could not be loaded. Check the data files.';
+});
+
+new THREE.TextureLoader().loadAsync('data/globe.png').then((texture) => {
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  globe = createGlobe([], texture, new THREE.Vector3(-0.55, 0.32, 0.75));
+  globe.root.scale.setScalar(1 / GLOBE_R);
+  globe.spin.quaternion.copy(faceQuat(10.5, -67.5, new THREE.Vector3(0, 0, 1)));
+  globe.root.visible = false;
+  scene.add(globe.root);
+  toggle.disabled = false;
+}).catch((error: unknown) => { console.error('Earth texture could not be loaded.', error); });
+
+toggle.addEventListener('click', () => {
+  if (!globe) return;
+  currentView = currentView === 'terrain' ? 'globe' : 'terrain';
+  globe.root.visible = currentView === 'globe';
+  if (terrainMesh) terrainMesh.visible = currentView === 'terrain';
+  controls.maxPolarAngle = currentView === 'globe' ? Math.PI : Math.PI / 2 - 0.04;
+  camera.position.set(0, currentView === 'globe' ? 0 : 3.2, 5);
+  controls.target.set(0, 0, 0);
+  controls.update();
+  toggle.textContent = currentView === 'terrain' ? 'Show Earth' : 'Show Venezuela terrain';
+  status.textContent = currentView === 'globe' ? 'Earth · Mapzen / AWS Terrain Tiles · drag to explore' : 'Venezuela terrain · Mapzen / AWS Terrain Tiles · drag to explore';
 });
 
 function resize() {
@@ -45,4 +80,4 @@ function resize() {
   renderer.setSize(innerWidth, innerHeight);
 }
 window.addEventListener('resize', resize);
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(() => { globe?.update(performance.now() / 1000, '', 0, 1, 0, 0); controls.update(); renderer.render(scene, camera); });
