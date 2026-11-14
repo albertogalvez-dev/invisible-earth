@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { loadTerrain } from './terrain';
 import { createGlobe, faceQuat, GLOBE_R, type Globe } from './globe';
+import { sites } from './sites';
 import './style.css';
 
 const container = document.querySelector<HTMLElement>('#app');
@@ -39,6 +40,17 @@ toggle.className = 'view-toggle';
 toggle.textContent = 'Show Earth';
 toggle.disabled = true;
 container.appendChild(toggle);
+const sitePicker = document.createElement('select');
+sitePicker.className = 'site-picker';
+sitePicker.setAttribute('aria-label', 'Focus the globe on a location');
+sitePicker.hidden = true;
+for (const site of sites) {
+  const option = document.createElement('option');
+  option.value = site.id;
+  option.textContent = site.name;
+  sitePicker.appendChild(option);
+}
+container.appendChild(sitePicker);
 loadTerrain().then((terrain) => {
   terrainMesh = terrain;
   terrain.visible = currentView === 'terrain';
@@ -52,9 +64,10 @@ loadTerrain().then((terrain) => {
 new THREE.TextureLoader().loadAsync('data/globe.png').then((texture) => {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = THREE.RepeatWrapping;
-  globe = createGlobe([], texture, new THREE.Vector3(-0.55, 0.32, 0.75));
+  globe = createGlobe(sites.map((site) => ({ id: site.id, lat: site.latitude, lon: site.longitude })), texture, new THREE.Vector3(-0.55, 0.32, 0.75));
   globe.root.scale.setScalar(1 / GLOBE_R);
-  globe.spin.quaternion.copy(faceQuat(10.5, -67.5, new THREE.Vector3(0, 0, 1)));
+  const initial = sites[0];
+  globe.spin.quaternion.copy(faceQuat(initial.latitude, initial.longitude, new THREE.Vector3(0, 0, 1)));
   globe.root.visible = false;
   scene.add(globe.root);
   toggle.disabled = false;
@@ -64,6 +77,7 @@ toggle.addEventListener('click', () => {
   if (!globe) return;
   currentView = currentView === 'terrain' ? 'globe' : 'terrain';
   globe.root.visible = currentView === 'globe';
+  sitePicker.hidden = currentView !== 'globe';
   if (terrainMesh) terrainMesh.visible = currentView === 'terrain';
   controls.maxPolarAngle = currentView === 'globe' ? Math.PI : Math.PI / 2 - 0.04;
   camera.position.set(0, currentView === 'globe' ? 0 : 3.2, 5);
@@ -73,6 +87,15 @@ toggle.addEventListener('click', () => {
   status.textContent = currentView === 'globe' ? 'Earth · Mapzen / AWS Terrain Tiles · drag to explore' : 'Venezuela terrain · Mapzen / AWS Terrain Tiles · drag to explore';
 });
 
+sitePicker.addEventListener('change', () => {
+  const site = sites.find((item) => item.id === sitePicker.value);
+  if (!site || !globe) return;
+  globe.spin.quaternion.copy(faceQuat(site.latitude, site.longitude, new THREE.Vector3(0, 0, 1)));
+  camera.position.set(0, 0, 5);
+  controls.target.set(0, 0, 0);
+  controls.update();
+});
+
 function resize() {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
@@ -80,4 +103,4 @@ function resize() {
   renderer.setSize(innerWidth, innerHeight);
 }
 window.addEventListener('resize', resize);
-renderer.setAnimationLoop(() => { globe?.update(performance.now() / 1000, '', 0, 1, 0, 0); controls.update(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(() => { globe?.update(performance.now() / 1000, sitePicker.value, 0, 1, 0, 1); controls.update(); renderer.render(scene, camera); });
