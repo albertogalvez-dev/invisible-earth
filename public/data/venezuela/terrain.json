@@ -1,0 +1,14 @@
+{
+  "width": 2112,
+  "height": 1112,
+  "metersPerPixel": 150.2160042471409,
+  "min": -1980,
+  "max": 2718,
+  "aoi": {
+    "west": -69.5,
+    "south": 9.95,
+    "east": -66.6,
+    "north": 11.45
+  },
+  "source": "Mapzen/AWS Terrarium tiles z10 (AWS Open Data terrain-tiles)"
+}
