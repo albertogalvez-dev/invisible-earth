@@ -69,6 +69,8 @@ The data archive must be restored before building a complete distributable: Vite
 
 Built with TypeScript, Vite, Three.js and WebGL; data preparation uses Python, earthaccess, h5py and NumPy. See [CREDITOS.txt](CREDITOS.txt) for additional tools, data, fonts and media credits. OpenAI Codex and ChatGPT supported development and writing; English narration uses an AI-generated synthetic voice. The team is responsible for reviewing the project and its claims.
 
+Other tools and services used for the application and project demonstration include [Node.js](https://nodejs.org/), [FFmpeg](https://ffmpeg.org/), [Playwright](https://playwright.dev/), [Slidev](https://sli.dev/), [Vue.js](https://vuejs.org/), [Google Fonts](https://fonts.google.com/) and [Vercel](https://vercel.com/). Background references include [2026 Nepal–Tibet floods](https://en.wikipedia.org/wiki/2026_Nepal%E2%80%93Tibet_floods).
+
 ## Team
 
 **Daniel García Ortega** and **Alberto Gálvez Aguado** · Tarenvis · Granada, Spain.

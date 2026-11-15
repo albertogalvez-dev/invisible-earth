@@ -288,7 +288,7 @@ SITES.push({
   ],
   sources: [
     { label: 'NASA — US-India satellite captures time-lapse video of volcanic eruption', url: 'https://www.nasa.gov/missions/nisar/us-india-satellite-captures-time-lapse-video-of-volcanic-eruption/' },
-    { label: 'Smithsonian GVP — Krasheninnikov', url: 'https://volcano.si.edu/volcano.cfm?vn=300120' },
+    { label: 'Smithsonian GVP — Krasheninnikov', url: 'https://volcano.si.edu/volcano.cfm?vn=300190' },
   ],
 });
 
