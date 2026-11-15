@@ -21,6 +21,9 @@ async function prepare(page: Page, problems: string[]) {
   await page.clock.install({ time: 0 });
   await page.clock.pauseAt(1000);
   await page.addInitScript(() => {
+    // These tests exercise the application after the user has made the sound choice.
+    // The welcome dialog otherwise covers the controls throughout the test.
+    sessionStorage.setItem('invisible-earth-sound-choice', 'yes');
     const born = new WeakMap<Animation, number>();
     (window as any).__syncAnimations = () => {
       const now = performance.now();
