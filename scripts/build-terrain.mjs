@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PNG } from 'pngjs';
-import { SITES } from './terrain-sites.mjs';
+import { SITES } from '../src/sites.ts';
 
 const args = process.argv.slice(2);
 const fetchMissing = args.includes('--fetch');

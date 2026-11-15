@@ -1,0 +1,19 @@
+Sources, software and third-party credits
+
+
+
+| Layer | What | Licence |
+| --- | --- | --- |
+| Rendering | [three.js](https://threejs.org) 0.186 — WebGL2, custom GLSL shaders (terrain, ghost, stems, clouds, globe), post-processing (bloom, grade, a NaN guard) | MIT |
+| App | TypeScript 7 + [Vite](https://vite.dev) 8; no framework — one `main.ts`, Web Workers for per-place work, Web Audio for sound | Apache-2.0 / MIT |
+| Type | Instrument Serif, Inter, JetBrains Mono via Fontsource | SIL OFL 1.1 |
+| Data pipeline | Python 3 + [earthaccess](https://github.com/nsidc/earthaccess) 0.19 (NASA Earthdata search/stream), h5py, NumPy (`scripts/fetch-gunw.py`); Node scripts for terrain tiles and the globe | MIT / BSD |
+| Media | [FFmpeg](https://ffmpeg.org) (globe WebP, sound trimming, film encoding) — a build-time tool, not shipped | LGPL/GPL |
+| Checks | [Playwright](https://playwright.dev) 1.63 (real Chromium on the GPU, fake clock), [axe-core](https://github.com/dequelabs/axe-core) 4.13 | Apache-2.0 / MPL-2.0 |
+| Data | NASA-ISRO NISAR L2 GUNW (ASF DAAC, NASA Earthdata — open), Mapzen Terrarium terrain tiles (AWS Open Data), Scientific colour maps by Fabio Crameri, BigSoundBank recordings | open data / MIT / CC0 |
+
+## Credits
+
+Radar: NASA-ISRO NISAR, products via ASF DAAC. Terrain: Mapzen Terrarium tiles on AWS Open Data. Colour maps: Scientific colour maps by Fabio Crameri (MIT) — romaO, berlin, grayC. Type: Instrument Serif, Inter, JetBrains Mono (SIL OFL). Rendering: three.js. Sound recordings: BigSoundBank (CC0, Joseph Sardin and contributors).
+
+English narration: AI-generated synthetic voice produced with Microsoft Edge text-to-speech (en-US-AndrewNeural). Review the provider's applicable output rights before redistribution.
