@@ -4,3 +4,6 @@ dist/
 .env
 .env.*
 *.log
+public/data/
+.venv-gunw/
+__pycache__/

@@ -1,13 +1,197 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#03090e" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#030406" />
+    <meta name="description" content="Watch the ground move: NISAR radar interferometry over three real events, on real terrain." />
+    <meta property="og:title" content="Invisible Earth" />
+    <meta property="og:description" content="Watch the ground move: NISAR radar interferometry over three real 2026 events." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23733958'/%3E%3Cstop offset='.35' stop-color='%235393bf'/%3E%3Cstop offset='.7' stop-color='%23cbe2b4'/%3E%3Cstop offset='1' stop-color='%23aa752f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%23030406'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='url(%23g)' stroke-width='4'/%3E%3C/svg%3E" />
     <title>Invisible Earth</title>
+    <style>
+      /* Before the styles arrive, only the loading screen may show: never a raw page, never a hidden panel. */
+      html, body { margin: 0; background: #030406; }
+      #app:not(.styled) > :not(#loader) { visibility: hidden !important; }
+      .stage { display: contents; }
+      #loader { position: fixed; inset: 0; display: grid; place-content: center; background: #030406; color: #7b818c;
+        font: 11px/1.4 ui-monospace, 'JetBrains Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; }
+    </style>
   </head>
   <body>
-    <main id="app"></main>
+    <div id="app" data-beat="0" data-mode="boot" data-kind="quake">
+      <main class="stage" aria-label="Invisible Earth">
+        <canvas id="gl" aria-label="3D view of the terrain and the radar signal"></canvas>
+        <div class="places" id="places"></div>
+        <div class="veil" id="veil"></div>
+
+      <header class="top">
+        <button class="brand" id="brand" aria-label="Choose a place"><span class="mark"></span>Invisible Earth</button>
+        <div class="meta">
+          <button class="sitebtn" id="siteBtn" aria-label="Choose a place"><b id="siteName"></b><i></i></button>
+          <span class="chip" id="chip"></span>
+          <span class="coords" id="coords"></span>
+          <button class="aboutbtn soundbtn" id="soundBtn" aria-label="Mute sound" aria-pressed="true"><i></i></button>
+          <button class="aboutbtn keysbtn" id="keysBtn" aria-label="Keyboard shortcuts">?</button>
+          <button class="aboutbtn" id="guideBtn">Guide</button>
+          <button class="aboutbtn" id="aboutBtn">About</button>
+        </div>
+      </header>
+
+      <section class="copy" id="copy" aria-live="polite">
+        <div class="eyebrow" id="eyebrow"></div>
+        <h1 id="headline"></h1>
+        <p id="sub"></p>
+      </section>
+
+      <div class="hero" id="hero">
+        <strong id="heroVal">0.0</strong><span class="unit" id="heroUnit">cm</span>
+        <em id="heroLabel">peak-to-peak · line of sight</em>
+        <b id="heroCompare"></b>
+      </div>
+
+      <aside class="legend" id="legend">
+        <div class="lg-title" id="lgTitle"></div>
+        <div class="lg-body">
+          <div class="lg-bar" id="lgBar"></div>
+          <div class="lg-ticks"><span id="lgMax"></span><span id="lgMid"></span><span id="lgMin"></span></div>
+        </div>
+        <div class="lg-note" id="lgNote"></div>
+      </aside>
+
+      <section class="explore" id="explore">
+        <div class="explore-tools">
+          <div class="seg">
+            <button id="modeFringes">Fringes</button>
+            <button id="modeDisp" class="on">Displacement</button>
+          </div>
+          <button class="toggle on" id="cohToggle"><i></i>Coherence<span class="lg"> mask</span></button>
+          <button class="toggle" id="compareBtn" aria-pressed="false"><i></i>Eye <span class="lg">vs</span> radar</button>
+          <button class="toggle" id="shot" aria-label="Save the current view as an image">Save image</button>
+        </div>
+        <div class="timeline">
+          <button class="play" id="play" aria-label="Play sequence"><span></span></button>
+          <div class="track"><div class="ticks" id="ticks"></div></div>
+          <div class="epoch"><b id="epochDate"></b><span id="epochRel"></span></div>
+        </div>
+      </section>
+
+      <div class="split" id="split" aria-hidden="true"><span class="split-l">What the eye sees</span><i></i><b id="splitKnob"></b><span class="split-r">What the radar sees</span></div>
+
+      <nav class="nav">
+        <ol id="chapters"></ol>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+        <div class="nav-actions">
+          <button class="film-hud" id="filmHud" aria-label="Stop film">
+            <span class="rec"></span><span class="film-txt">Film · tap to exit</span>
+            <i class="film-bar"><b id="filmBar"></b></i>
+          </button>
+          <button class="filmbtn" id="film" aria-label="Play as film"><span></span><em>Film</em></button>
+          <button class="prev" id="prev" aria-label="Previous">←</button>
+          <button class="next" id="next"><span id="nextLabel"></span><em>→</em></button>
+        </div>
+      </nav>
+
+      <section class="intro" id="intro" aria-label="Invisible Earth">
+        <div class="eyebrow">NASA–ISRO · NISAR · L-band radar · 2026</div>
+        <h1>Invisible <em>Earth</em></h1>
+        <p>The ground moves by centimetres. From 747 km up, a radar measures it.</p>
+      </section>
+
+      <section class="picker" id="picker" aria-label="Choose an event">
+        <div class="picker-head">
+          <div class="eyebrow"><span id="pickerCount">Five</span> real places · NISAR</div>
+          <h1>How is Earth<br /><em>changing?</em></h1>
+          <p class="picker-guide">Choose a place to explore radar observations from the NASA–ISRO satellite NISAR. Follow the story, then explore the map.</p>
+        </div>
+        <div class="cards" id="cards"></div>
+        <div class="picker-foot">
+          <span class="hint"><kbd>←</kbd><kbd>→</kbd> browse <span class="sep">·</span> <kbd>↵</kbd> open <span class="sep">·</span> <kbd>S</kbd> sound</span>
+          <button class="pill" id="playAll"><i></i>Play all</button>
+        </div>
+      </section>
+
+      <div class="about" id="about" aria-hidden="true">
+        <div class="about-card" role="dialog" aria-modal="true" aria-label="About this data">
+          <button class="about-close" id="aboutClose" aria-label="Close">×</button>
+          <div class="about-body" id="aboutBody"></div>
+        </div>
+      </div>
+
+      <div class="about" id="guide" aria-hidden="true">
+        <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+          <button class="about-close" id="guideClose" aria-label="Close guide">×</button>
+          <div class="eyebrow">A quick guide</div>
+          <h2 id="guideTitle">See the change.</h2>
+          <h3>Choose a place</h3>
+          <p>Pick a location to follow a story built from NISAR radar observations. Use the arrows to move through its chapters, or choose Film to watch automatically.</p>
+          <h3>Explore for yourself</h3>
+          <p>Drag to orbit and scroll to zoom. Right-drag to move across the map; on touchscreens, use two fingers. Choose Back to the shot to return to the guided view.</p>
+          <h3>Read the data</h3>
+          <p>Radar compares passes made on different dates, not continuous footage. Displacement is along the satellite's line of sight. Relief and motion may be exaggerated for visibility; surface changes are not always ground movement.</p>
+          <h3>Check the evidence</h3>
+          <p>Open About for the data, dates, interpretation and sources. The signal label identifies real observations or a synthetic fallback.</p>
+        </div>
+      </div>
+
+      <div class="orbit-hint" id="orbitHint" aria-hidden="true"></div>
+      <button class="view-reset" id="viewReset">↺ Back to the shot</button>
+
+      <div class="about" id="keys" aria-hidden="true">
+        <div class="about-card keys-card" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+          <button class="about-close" id="keysClose" aria-label="Close">×</button>
+          <div class="eyebrow">Keyboard</div>
+          <h2>Shortcuts</h2>
+          <dl class="keys">
+            <dt>Picker</dt><dd><kbd>←</kbd> <kbd>→</kbd> browse · <kbd>1</kbd>–<kbd>5</kbd> or <kbd>↵</kbd> open</dd>
+            <dt>Chapters</dt><dd><kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd></dd>
+            <dt>Explore</dt><dd>drag to orbit · scroll to zoom · drag the dot, or <kbd>←</kbd> <kbd>→</kbd> on it</dd>
+            <dt>Film</dt><dd><kbd>M</kbd> starts and stops · any key ends it</dd>
+            <dt>Camera</dt><dd>drag to orbit · scroll to zoom · <kbd>R</kbd> back to the shot</dd>
+            <dt>Places</dt><dd><kbd>Esc</kbd> back to the picker</dd>
+            <dt>Sound</dt><dd><kbd>S</kbd></dd>
+            <dt>Frame rate</dt><dd><kbd>P</kbd></dd>
+            <dt>This help</dt><dd><kbd>?</kbd></dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="fps" id="fps"></div>
+
+      <div class="point-assistant" id="pointAssistant" hidden>
+        <button class="assistant-launch" id="assistantLaunch" type="button" aria-expanded="false" aria-controls="assistantPanel">✦ Point guide <span>PREVIEW</span></button>
+        <section class="assistant-panel" id="assistantPanel" aria-label="Point guide demonstration" hidden>
+          <div class="assistant-heading"><div><span class="assistant-kicker">INVISIBLE EARTH · PREVIEW</span><h2>Understand a point</h2></div><button id="assistantClose" type="button" aria-label="Close point guide">×</button></div>
+          <p class="assistant-disclosure">Preview · responses are prepared, not generated live</p>
+          <p class="assistant-intro">Select a point on the terrain, then ask how to read its data.</p>
+          <button class="assistant-select" id="assistantSelect" type="button">Select a point on the map</button>
+          <p class="assistant-point" id="assistantPoint" aria-live="polite">No point selected yet.</p>
+          <button class="assistant-ask" id="assistantAsk" type="button" disabled>How do I interpret this point? <span>↗</span></button>
+          <div class="assistant-answer" id="assistantAnswer" role="status" hidden></div>
+        </section>
+        <div class="assistant-prompt" id="assistantPrompt" hidden><span>Tap or click a point on the terrain</span><button id="assistantCancel" type="button">Cancel</button></div>
+      </div>
+
+      <div class="probe" id="probe">
+        <div class="probe-coord" id="probeCoord"></div>
+        <div class="probe-rows" id="probeRows"></div>
+        <div class="probe-spark" id="probeSpark"></div>
+      </div>
+
+      </main>
+
+      <div class="loader" id="loader" role="status"><span id="loaderText">Loading terrain</span><i></i><button class="pill retry" id="retry" hidden>Reload</button></div>
+      <section class="sound-welcome" id="soundWelcome" hidden role="dialog" aria-modal="true" aria-labelledby="soundWelcomeTitle">
+        <div class="sound-welcome-card">
+          <div class="sound-welcome-icon" aria-hidden="true">◖))</div>
+          <p class="sound-welcome-kicker">INVISIBLE EARTH</p>
+          <h2 id="soundWelcomeTitle">Explore with sound</h2>
+          <p id="soundWelcomeDescription">Turn on your sound for an English spoken guide and an immersive experience. You can change this at any time.</p>
+          <button id="soundWelcomeOn" class="sound-welcome-primary">Continue with sound</button>
+          <button id="soundWelcomeOff" class="sound-welcome-secondary">Continue without sound</button>
+        </div>
+      </section>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,21 +1,33 @@
 {
   "name": "invisible-earth",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
+  "version": "1.0.0",
+  "description": "Invisible Earth: a cinematic 3D walk through real NASA-ISRO NISAR radar interferometry over five places, on real terrain.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "terrain": "node scripts/build-terrain.mjs"
+    "terrain": "node scripts/build-terrain.mjs",
+    "test:e2e": "playwright test",
+    "film": "node tests/e2e/film.mjs",
+    "data": "node scripts/fetch-data.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "three": "^0.186.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@types/three": "^0.186.0",
     "pngjs": "^7.0.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.1"
   },
-  "dependencies": {
-    "three": "^0.186.1"
-  }
+  "private": true,
+  "type": "module"
 }
